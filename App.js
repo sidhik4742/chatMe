@@ -8,10 +8,12 @@
 
 import React, {Fragment} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
-import CallingScreen from './src/screens/callingScreen';
-import ContactScreen from './src/screens/contactScreen';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigation from './src/navigation';
+
+import CallingScreen from './src/screens/callingScreen';
+import ContactScreen from './src/screens/contactScreen';
+import IncomingScreen from './src/screens/incomingScreen';
 
 const App = () => {
   return (
@@ -26,6 +28,7 @@ const App = () => {
       </NavigationContainer>
       {/* <CallingScreen /> */}
       {/* <ContactScreen /> */}
+      {/* <IncomingScreen /> */}
     </Fragment>
   );
 };

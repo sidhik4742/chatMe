@@ -4,6 +4,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import ContactScreen from '../screens/contactScreen';
 import CallingScreen from '../screens/callingScreen';
+import OutgoingCall from '../screens/outgoingScreen';
+import IncomingScreen from '../screens/incomingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,6 +15,11 @@ const AppNavigation = () => {
       screenOptions={{
         headerShown: false,
       }}>
+        {/* <Stack.Screen
+        name="Incoming"
+        component={IncomingScreen}
+        options={{title: 'Incoming'}}
+      /> */}
       <Stack.Screen
         name="Contact"
         component={ContactScreen}
@@ -21,15 +28,20 @@ const AppNavigation = () => {
         }}
       />
       <Stack.Screen
+        name="Outgoing"
+        component={OutgoingCall}
+        options={{title: 'Outgoing'}}
+      />
+      <Stack.Screen
         name="Calling"
         component={CallingScreen}
         options={{title: 'Calling'}}
       />
-      {/* <Stack.Screen
-        name="Library"
-        component={Library}
-        options={{title: 'Library'}}
-      /> */}
+      <Stack.Screen
+        name="Incoming"
+        component={IncomingScreen}
+        options={{title: 'Incoming'}}
+      />
     </Stack.Navigator>
   );
 };

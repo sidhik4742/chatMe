@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Ionicon from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native'
+import {useNavigation} from '@react-navigation/native';
 
 import colors from '../../constants/Colors';
 import {contacts} from '../../constants/DummyContacts.json';
@@ -29,7 +29,7 @@ const ContactScreen = () => {
   }, [searchText]);
 
   const callingHandler = contact => {
-    navigation.navigate('Calling', {contact});
+    navigation.navigate('Outgoing', {contact});
   };
 
   return (
