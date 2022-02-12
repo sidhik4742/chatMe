@@ -6,6 +6,9 @@ import ContactScreen from '../screens/contactScreen';
 import CallingScreen from '../screens/callingScreen';
 import OutgoingCall from '../screens/outgoingScreen';
 import IncomingScreen from '../screens/incomingScreen';
+import StartingScreen from '../screens/startingScreen';
+import SignupScreen from '../screens/signupScreen';
+import LoginScreen from '../screens/loginScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,11 +18,26 @@ const AppNavigation = () => {
       screenOptions={{
         headerShown: false,
       }}>
-        {/* <Stack.Screen
+      {/* <Stack.Screen
         name="Incoming"
         component={IncomingScreen}
         options={{title: 'Incoming'}}
       /> */}
+      <Stack.Screen
+        name="Start"
+        component={StartingScreen}
+        options={{title: 'Start'}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{title: 'Login'}}
+      />
+      <Stack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{title: 'Signup'}}
+      />
       <Stack.Screen
         name="Contact"
         component={ContactScreen}

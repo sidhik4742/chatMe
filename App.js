@@ -10,12 +10,11 @@ import React, {Fragment} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigation from './src/navigation';
-
-import CallingScreen from './src/screens/callingScreen';
-import ContactScreen from './src/screens/contactScreen';
-import IncomingScreen from './src/screens/incomingScreen';
+import {QueryClientProvider, QueryClient} from 'react-query';
 
 const App = () => {
+  const client = new QueryClient();
+
   return (
     <Fragment>
       <StatusBar
@@ -24,11 +23,10 @@ const App = () => {
         // translucent
       />
       <NavigationContainer>
-        <AppNavigation />
+        <QueryClientProvider client={client}>
+          <AppNavigation />
+        </QueryClientProvider>
       </NavigationContainer>
-      {/* <CallingScreen /> */}
-      {/* <ContactScreen /> */}
-      {/* <IncomingScreen /> */}
     </Fragment>
   );
 };

@@ -6,19 +6,65 @@ import {
   TextInput,
   FlatList,
   Pressable,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import {useQuery} from 'react-query';
+import axiosInstance from '../../config/axios/index';
 
 import colors from '../../constants/Colors';
 import {contacts} from '../../constants/DummyContacts.json';
 
+const permisions = [
+  'android.permission.RECORD_AUDIO',
+  'android.permission.CAMERA',
+];
+
 const ContactScreen = () => {
+  const navigation = useNavigation();
+
+  const [permissionGranted, setPermissionGranted] = useState(false);
   const [contactSearch, setContactSearch] = useState(contacts);
   const [searchText, setSearchText] = useState('');
+  const {data, isLoading} = useQuery('contacts', async () => {
+    try {
+      const response = await axiosInstance.get('/users/getcontacts');
+      console.log(response.data?.result?.result);
+      return response.data?.result?.result;
+    } catch (error) {
+      console.warn(error);
+      return error.response.data;
+    }
+  });
 
-  const navigation = useNavigation();
+  const requestAndroidPermissions = async () => {
+    try {
+      const granted = await PermissionsAndroid.requestMultiple(permisions);
+      const recordAudioGranted =
+        granted['android.permission.RECORD_AUDIO'] === 'granted';
+      const cameraGranted = granted['android.permission.CAMERA'] === 'granted';
+      if (!recordAudioGranted || !cameraGranted) {
+        Alert.alert('Permissions', 'Please grant permissions to use this app', [
+          {text: 'OK'},
+        ]);
+      } else {
+        setPermissionGranted(true);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      requestAndroidPermissions();
+    } else {
+      setPermissionGranted(true);
+    }
+  }, []);
 
   useEffect(() => {
     setContactSearch(
@@ -62,24 +108,37 @@ const ContactScreen = () => {
         }}
         keyExtractor={item => item.id}
       />
-      <FlatList
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        data={contactSearch}
-        renderItem={({item}) => {
-          return (
-            <Pressable
-              onPress={() => callingHandler(item)}
-              style={styles.contactViewVertical}>
-              <View style={styles.icontViewVertical}></View>
-              <View style={styles.contactInfoVertical}>
-                <Text style={styles.contactNameVertical}>{item.name}</Text>
-                <Text style={styles.contactNumberVertical}>{item.phone}</Text>
-              </View>
-            </Pressable>
-          );
-        }}
-        keyExtractor={item => item.id}
-      />
+      {!isLoading ? (
+        <FlatList
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          data={data}
+          renderItem={({item}) => {
+            return (
+              <Pressable
+                onPress={() => callingHandler(item)}
+                style={styles.contactViewVertical}>
+                <View style={styles.icontViewVertical}>
+                  <Ionicon
+                    style={styles.contactIcon}
+                    name="person"
+                    size={50}
+                    color={colors.black}
+                  />
+                </View>
+                <View style={styles.contactInfoVertical}>
+                  <Text style={styles.contactNameVertical}>
+                    {item.userDisplayName}
+                  </Text>
+                  <Text style={styles.contactNumberVertical}>{item.phone}</Text>
+                </View>
+              </Pressable>
+            );
+          }}
+          keyExtractor={item => item.userId}
+        />
+      ) : (
+        <Text>Loading</Text>
+      )}
     </SafeAreaView>
   );
 };
@@ -130,8 +189,10 @@ const styles = StyleSheet.create({
   icontViewVertical: {
     width: 60,
     height: 60,
-    backgroundColor: colors.grey100,
+    backgroundColor: colors.white,
     borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contactInfoVertical: {
     marginLeft: 10,

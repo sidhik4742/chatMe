@@ -1,7 +1,7 @@
 const Colors = {
   background: '#1A0938',
 
-  primary: '#ED1BA3',
+  primary: '#103D78',
   secondary: '#361E60',
   accent: '#22DDF2',
   grey0: '#393e42',
@@ -24,8 +24,8 @@ const Colors = {
   notification: 'rgb(255, 59, 48)',
   text: 'rgb(28, 28, 30)',
 
-  linearGradient1: ['#D91193','#22DDF2'],
-  linearGradient2: ['#22DDF2','#D91193'],
+  linearGradient1: ['#D91193', '#22DDF2'],
+  linearGradient2: ['#22DDF2', '#D91193'],
 
   transparent: 'rgba(0,0,0,0)',
 
@@ -127,6 +127,7 @@ const Colors = {
   blue50: '#e3f2fd',
   blue100: '#bbdefb',
   blue200: '#90caf9',
+  blue250: '#63ABFF',
   blue300: '#64b5f6',
   blue400: '#42a5f5',
   blue500: '#2196f3',
@@ -135,6 +136,7 @@ const Colors = {
   blue800: '#1565c0',
   blue900: '#0d47a1',
   blueA100: '#82b1ff',
+  blueA150: '#6490E4',
   blueA200: '#448aff',
   blueA400: '#2979ff',
   blueA700: '#2962ff',

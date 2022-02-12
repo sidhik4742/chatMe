@@ -6,14 +6,23 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 import CallingActionBox from '../../components/callingActionBox';
 import bg from '../../../assets/images/PhotoDummy.png';
 
 const OutgoingCall = () => {
   const route = useRoute();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    setTimeout(() => {
+      navigation.navigate('Calling');
+    }, 3000);
+  }, []);
+
   return (
     <View>
       <StatusBar
