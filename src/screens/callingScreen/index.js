@@ -22,17 +22,13 @@ const CallingScreen = () => {
         translucent
       />
       <ImageBackground source={bg} style={styles.firstCameraScreen}>
-        <View style={styles.textContent}>
-          <Text style={styles.title}>
-            Call to {route?.params?.contact?.name}!
-          </Text>
-        </View>
+        <View style={styles.textContent}></View>
         <View style={styles.secondCameraView}>
           <Image source={bg} style={styles.secondCameraScreen} />
         </View>
       </ImageBackground>
       <View style={styles.callingActionBox}>
-        <CallingActionBox />
+        <CallingActionBox callHangUpHandler={callHangUpHandler} />
       </View>
     </>
   );

@@ -5,23 +5,124 @@ import {
   ImageBackground,
   StatusBar,
   Image,
+  Alert,
 } from 'react-native';
-import React, {useEffect} from 'react';
-import {useRoute} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Voximplant} from 'react-native-voximplant';
 import {useNavigation} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 
 import CallingActionBox from '../../components/callingActionBox';
 import bg from '../../../assets/images/PhotoDummy.png';
 
+const callSettings = {
+  video: {
+    sendVideo: true,
+    receiveVideo: true,
+  },
+};
+
 const OutgoingCall = () => {
-  const route = useRoute();
   const navigation = useNavigation();
+  const voximplant = Voximplant.getInstance();
+  const route = useRoute();
+  // const {permissionGranted} = route.params;
+  const {
+    permissionGranted,
+    userName,
+    call: incomingCall,
+    isIncomingCall,
+  } = route?.params;
+
+  const [callStatus, setCallStatus] = useState('Initializing...');
+  const [localVideoStreamId, setLocalVideoStreamId] = useState('');
+  const [remoteVideoStreamId, setRemoteVideoStreamId] = useState('');
+
+  const call = useRef(incomingCall);
+  const endpoint = useRef(null);
+
+  const callHangUpHandler = () => {
+    call.current.hangup();
+  };
+
+  const showError = reason => {
+    Alert.alert('Call failed', 'Reason: ' + reason, [
+      {text: 'OK', onPress: () => navigation.goBack()},
+    ]);
+  };
+
+  // * subscribe to endpoint events
+  const subscribeToEndpointEvents = () => {
+    endpoint.current.on(
+      Voximplant.EndpointEvents.RemoteVideoStreamAdded,
+      endpointEvent => {
+        setRemoteVideoStreamId(endpointEvent.videoStream.id);
+      },
+    );
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      navigation.navigate('Calling');
-    }, 3000);
-  }, []);
+    const makeCall = async () => {
+      call.current = await voximplant.call(userName, callSettings);
+      subscribeToCallEvents();
+    };
+
+    const answerCall = async () => {
+      subscribeToCallEvents();
+      call.current.answer(callSettings);
+    };
+
+    // * subscribe to call events
+    const subscribeToCallEvents = () => {
+      call.current.on(Voximplant.CallEvents.Failed, callEvent => {
+        console.log('Call failed');
+        showError(callEvent.reason);
+      });
+      call.current.on(Voximplant.CallEvents.ProgressToneStart, callEvent => {
+        console.log('Call progressing');
+        setCallStatus('Calling...');
+      });
+      call.current.on(Voximplant.CallEvents.Connected, callEvent => {
+        console.log('Call connected');
+        setCallStatus('Connected');
+      });
+      call.current.on(Voximplant.CallEvents.Disconnected, callEvent => {
+        console.log('Call disconnected');
+        setCallStatus('Disconnected');
+        navigation.navigate('Contact');
+      });
+      call.current.on(
+        Voximplant.CallEvents.LocalVideoStreamAdded,
+        callEvent => {
+          setLocalVideoStreamId(callEvent.videoStream.id);
+        },
+      );
+      call.current.on(Voximplant.CallEvents.EndpointAdded, callEvent => {
+        endpoint.current = callEvent.endpoint;
+        subscribeToEndpointEvents();
+      });
+    };
+
+    if (!permissionGranted) {
+      navigation.navigate('Contact');
+    } else {
+      if (isIncomingCall) {
+        answerCall();
+      } else {
+        makeCall();
+      }
+    }
+
+    // * unsubscribe from call events
+    return () => {
+      call.current.off(voximplant.CallEvents.Failed);
+      call.current.off(voximplant.CallEvents.ProgressToneStart);
+      call.current.off(voximplant.CallEvents.Connected);
+      call.current.off(voximplant.CallEvents.Disconnected);
+      call.current.off(voximplant.CallEvents.LocalVideoStreamAdded);
+      call.current.off(voximplant.CallEvents.EndpointAdded);
+    };
+  }, [permissionGranted]);
 
   return (
     <View>
@@ -31,18 +132,34 @@ const OutgoingCall = () => {
         translucent
       />
       <ImageBackground source={bg} style={styles.firstCameraScreen}>
-        <View style={styles.textContent}>
-          <View style={styles.profileView}>
-            <Image source={bg} style={styles.profileImage} />
+        {/* <Image source={bg} style={styles.secondCameraScreen} /> */}
+        <Voximplant.VideoView
+          style={styles.firstCameraScreen}
+          videoStreamId={remoteVideoStreamId}
+          scaleType={Voximplant.RenderScaleType.SCALE_FILL}
+        />
+
+        {callStatus!='Connected' ? (
+          <View style={styles.textContent}>
+            <View style={styles.profileView}>
+              <Image source={bg} style={styles.profileImage} />
+            </View>
+            <Text style={styles.title}>{userName}</Text>
+            <Text style={styles.title}>{callStatus}</Text>
           </View>
-          <Text style={styles.title}>{route?.params?.contact?.name}</Text>
-          <Text style={styles.title}>
-            Calling... {route?.params?.contact?.phone}
-          </Text>
+        ) : null}
+        <View style={styles.secondCameraView}>
+          {/* <Image source={bg} style={styles.secondCameraScreen} /> */}
+          <Voximplant.VideoView
+            style={styles.secondCameraScreen}
+            videoStreamId={localVideoStreamId}
+            scaleType={Voximplant.RenderScaleType.SCALE_FILL}
+            showOnTop={true}
+          />
         </View>
       </ImageBackground>
       <View style={styles.callingActionBox}>
-        <CallingActionBox />
+        <CallingActionBox callHangUpHandler={callHangUpHandler} />
       </View>
     </View>
   );
@@ -52,6 +169,7 @@ export default OutgoingCall;
 
 const styles = StyleSheet.create({
   firstCameraScreen: {
+    // flex: 1,
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
@@ -79,6 +197,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 50,
+  },
+  secondCameraView: {
+    width: 150,
+    height: 250,
+    position: 'absolute',
+    bottom: 100,
+    right: 0,
+    zIndex: 999,
+  },
+  secondCameraScreen: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    marginHorizontal: -10,
+    marginVertical: -10,
+    borderRadius: 20,
   },
   callingActionBox: {
     marginTop: 'auto',

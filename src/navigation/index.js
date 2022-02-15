@@ -2,13 +2,13 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
+import StartingScreen from '../screens/startingScreen';
+import LoginScreen from '../screens/loginScreen';
+import SignupScreen from '../screens/signupScreen';
 import ContactScreen from '../screens/contactScreen';
-import CallingScreen from '../screens/callingScreen';
 import OutgoingCall from '../screens/outgoingScreen';
 import IncomingScreen from '../screens/incomingScreen';
-import StartingScreen from '../screens/startingScreen';
-import SignupScreen from '../screens/signupScreen';
-import LoginScreen from '../screens/loginScreen';
+import CallingScreen from '../screens/callingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,11 +18,6 @@ const AppNavigation = () => {
       screenOptions={{
         headerShown: false,
       }}>
-      {/* <Stack.Screen
-        name="Incoming"
-        component={IncomingScreen}
-        options={{title: 'Incoming'}}
-      /> */}
       <Stack.Screen
         name="Start"
         component={StartingScreen}
@@ -45,15 +40,15 @@ const AppNavigation = () => {
           title: 'Contact',
         }}
       />
+        <Stack.Screen
+          name="Calling"
+          component={CallingScreen}
+          options={{title: 'Calling'}}
+        />
       <Stack.Screen
         name="Outgoing"
         component={OutgoingCall}
         options={{title: 'Outgoing'}}
-      />
-      <Stack.Screen
-        name="Calling"
-        component={CallingScreen}
-        options={{title: 'Calling'}}
       />
       <Stack.Screen
         name="Incoming"

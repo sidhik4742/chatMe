@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import color from '../../constants/Colors';
 
-CallingActionBox = () => {
+CallingActionBox = ({callHangUpHandler}) => {
   const [isCalling, setIsCalling] = useState(false);
   const [isVideoON, setIsVideoON] = useState(true);
   const [isMicON, setIsMicON] = useState(true);
@@ -18,9 +18,9 @@ CallingActionBox = () => {
   const cameraFlipHandler = () => {
     console.warn('Camera flip...');
   };
-  const phoneHangUpHandler = () => {
-    navigation.navigate('Contact');
-  };
+  // const phoneHangUpHandler = () => {
+  //   navigation.navigate('Contact');
+  // };
 
   return (
     <View style={styles.box}>
@@ -47,7 +47,7 @@ CallingActionBox = () => {
         />
       </Pressable>
       <Pressable
-        onPress={phoneHangUpHandler}
+        onPress={callHangUpHandler}
         style={[styles.iconView, {backgroundColor: color.red600}]}>
         <MaterialCommunityIcons
           name="phone-hangup"

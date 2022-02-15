@@ -9,11 +9,13 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
+
 import React, {useEffect, useState} from 'react';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
-import {useQuery} from 'react-query';
+import {useQuery, QueryClient} from 'react-query';
 import axiosInstance from '../../config/axios/index';
+import {Voximplant} from 'react-native-voximplant';
 
 import colors from '../../constants/Colors';
 import {contacts} from '../../constants/DummyContacts.json';
@@ -25,13 +27,16 @@ const permisions = [
 
 const ContactScreen = () => {
   const navigation = useNavigation();
+  const voximplant = Voximplant.getInstance();
+  const queryClient = new QueryClient();
 
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [contactSearch, setContactSearch] = useState(contacts);
   const [searchText, setSearchText] = useState('');
+  // const user =
   const {data, isLoading} = useQuery('contacts', async () => {
     try {
-      const response = await axiosInstance.get('/users/getcontacts');
+      const response = await axiosInstance.get('/users/getcontacts?userId=1');
       console.log(response.data?.result?.result);
       return response.data?.result?.result;
     } catch (error) {
@@ -69,13 +74,30 @@ const ContactScreen = () => {
   useEffect(() => {
     setContactSearch(
       contacts.filter(contact => {
-        return contact.name.toLowerCase().includes(searchText.toLowerCase());
+        return contact.userName
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
       }),
     );
   }, [searchText]);
 
+  useEffect(() => {
+    voximplant.on(Voximplant.ClientEvents.IncomingCall, incomingCallEvent => {
+      console.log('Incoming call');
+      navigation.navigate('Incoming', {
+        call: incomingCallEvent.call,
+      });
+    });
+    return () => {
+      voximplant.off(Voximplant.ClientEvents.IncomingCall);
+    };
+  });
+
   const callingHandler = contact => {
-    navigation.navigate('Outgoing', {contact});
+    navigation.navigate('Outgoing', {
+      userName: contact.userName,
+      permissionGranted,
+    });
   };
 
   return (
@@ -98,12 +120,14 @@ const ContactScreen = () => {
         data={contacts}
         renderItem={({item}) => {
           return (
-            <View style={styles.contactView}>
-              <View style={styles.icontView}></View>
-              <View style={styles.contactInfo}>
-                <Text style={styles.contactName}>{item.name}</Text>
+            <Pressable onPress={() => navigation.navigate('Incoming')}>
+              <View style={styles.contactView}>
+                <View style={styles.icontView}></View>
+                <View style={styles.contactInfo}>
+                  <Text style={styles.contactName}>{item.userName}</Text>
+                </View>
               </View>
-            </View>
+            </Pressable>
           );
         }}
         keyExtractor={item => item.id}
@@ -126,9 +150,7 @@ const ContactScreen = () => {
                   />
                 </View>
                 <View style={styles.contactInfoVertical}>
-                  <Text style={styles.contactNameVertical}>
-                    {item.userDisplayName}
-                  </Text>
+                  <Text style={styles.contactName}>{item.userDisplayName}</Text>
                   <Text style={styles.contactNumberVertical}>{item.phone}</Text>
                 </View>
               </Pressable>
@@ -176,6 +198,7 @@ const styles = StyleSheet.create({
   },
   contactName: {
     textAlign: 'center',
+    color: colors.black,
   },
   separator: {
     height: 1,

@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
@@ -27,12 +28,9 @@ const LoginScreen = () => {
   useEffect(() => {
     const ConnectionStatus = async () => {
       const status = await voximplant.getClientState();
-      console.log(status);
       if (Voximplant.ClientState.DISCONNECTED === status) {
         await voximplant.connect();
       } else if (Voximplant.ClientState.LOGGED_IN === status) {
-        console.log(status);
-        queryClient.setQueryData('token', status?.tokens);
         navigation.reset({
           index: 0,
           routes: [{name: 'Contact'}],
@@ -48,12 +46,11 @@ const LoginScreen = () => {
         `${data.userName}@chatme.sidhik.voximplant.com`,
         data.userPassword,
       );
-      //   queryClient.setQueryData('token', response?.tokens);
       console.warn(response);
-      //   navigation.reset({
-      //     index: 0,
-      //     routes: [{name: 'Contact'}],
-      //   });
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Contact'}],
+      });
     } catch (error) {
       if (error?.code == 401) {
         Alert.alert(

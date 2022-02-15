@@ -7,16 +7,46 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {Voximplant} from 'react-native-voximplant';
+import {useNavigation} from '@react-navigation/native';
 import {useRoute} from '@react-navigation/native';
 import Octicons from 'react-native-vector-icons/Octicons';
-import {useNavigation} from '@react-navigation/native';
 
 import bg from '../../../assets/images/PhotoDummy.png';
 import Colors from '../../constants/Colors';
 
 const IncomingScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const [caller, setCaller] = useState('');
+
+  const {call} = route.params;
+
+  useEffect(() => {
+    setCaller(call.getEndpoints()[0].displayName);
+    call.on(Voximplant.CallEvents.Disconnected, callEvent => {
+      console.log('Call disconnected');
+      navigation.navigate('Contact');
+    });
+    return () => {
+      call.off(Voximplant.CallEvents.Disconnected);
+    };
+  }, []);
+
+  const onCallDeclineHandler = () => {
+    call.decline();
+  };
+
+  const onCallAnswerHandler = () => {
+    navigation.navigate('Outgoing', {
+      call,
+      isIncomingCall: true,
+      permissionGranted: true,
+    });
+  };
+
   return (
     <View>
       <StatusBar
@@ -29,17 +59,17 @@ const IncomingScreen = () => {
           <View style={styles.profileView}>
             <Image source={bg} style={styles.profileImage} />
           </View>
-          <Text style={styles.title}>Calling...</Text>
+          <Text style={styles.title}>{caller}</Text>
         </View>
       </ImageBackground>
       <View style={styles.incomingActionBox}>
         <Pressable
-          onPress={navigation.navigate('Contact')}
+          onPress={onCallDeclineHandler}
           style={styles.incomingActionView}>
           <Octicons name="x" size={30} color="#fff" />
         </Pressable>
         <Pressable
-          onPress={navigation.navigate('Calling')}
+          onPress={onCallAnswerHandler}
           style={[
             styles.incomingActionView,
             {backgroundColor: Colors.blue600},
