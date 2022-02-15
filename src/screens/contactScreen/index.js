@@ -16,6 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useQuery, QueryClient} from 'react-query';
 import axiosInstance from '../../config/axios/index';
 import {Voximplant} from 'react-native-voximplant';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import colors from '../../constants/Colors';
 import {contacts} from '../../constants/DummyContacts.json';
@@ -33,9 +34,11 @@ const ContactScreen = () => {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [contactSearch, setContactSearch] = useState(contacts);
   const [searchText, setSearchText] = useState('');
+  const [activeUser,setActiveUser] = useState('');
   // const user =
   const {data, isLoading} = useQuery('contacts', async () => {
     try {
+      getActiveUser();
       const response = await axiosInstance.get('/users/getcontacts?userId=1');
       console.log(response.data?.result?.result);
       return response.data?.result?.result;
@@ -93,6 +96,11 @@ const ContactScreen = () => {
     };
   });
 
+  const getActiveUser = async()=>{
+    const value = await AsyncStorage.getItem('user')
+    setActiveUser(JSON.parse(value).userName);
+  }
+
   const callingHandler = contact => {
     navigation.navigate('Outgoing', {
       userName: contact.userName,
@@ -138,7 +146,8 @@ const ContactScreen = () => {
           data={data}
           renderItem={({item}) => {
             return (
-              <Pressable
+              <>
+              {item.userName!=activeUser? <Pressable
                 onPress={() => callingHandler(item)}
                 style={styles.contactViewVertical}>
                 <View style={styles.icontViewVertical}>
@@ -150,10 +159,11 @@ const ContactScreen = () => {
                   />
                 </View>
                 <View style={styles.contactInfoVertical}>
-                  <Text style={styles.contactName}>{item.userDisplayName}</Text>
+                  <Text style={styles.contactName}>{item.userName}</Text>
                   <Text style={styles.contactNumberVertical}>{item.phone}</Text>
                 </View>
-              </Pressable>
+              </Pressable>:null}
+              </>
             );
           }}
           keyExtractor={item => item.userId}

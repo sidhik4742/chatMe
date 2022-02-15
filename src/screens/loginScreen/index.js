@@ -13,6 +13,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
 import {QueryClient} from 'react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import Colors from '../../constants/Colors';
 
@@ -47,6 +48,7 @@ const LoginScreen = () => {
         data.userPassword,
       );
       console.warn(response);
+      await AsyncStorage.setItem('user',JSON.stringify(data));
       navigation.reset({
         index: 0,
         routes: [{name: 'Contact'}],
