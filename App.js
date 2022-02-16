@@ -6,14 +6,20 @@
  * @flow strict-local
  */
 
-import React, {Fragment} from 'react';
+import React, {Fragment, useEffect} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigation from './src/navigation';
 import {QueryClientProvider, QueryClient} from 'react-query';
 
+import {requestUserPermission} from './src/services/notification';
+
 const App = () => {
   const client = new QueryClient();
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
 
   return (
     <Fragment>

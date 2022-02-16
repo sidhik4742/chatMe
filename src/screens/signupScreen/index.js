@@ -12,7 +12,11 @@ import React, {useState} from 'react';
 
 import Colors from '../../constants/Colors';
 import axiosInstance from '../../config/axios';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import {QueryClient, useMutation} from 'react-query';
+import Feather from 'react-native-vector-icons/Feather';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import AnimatedCircularProgress from 'react-native-animated-circular-progress';
 
 const SignupScreen = () => {
   const [data, setData] = useState({
@@ -22,19 +26,42 @@ const SignupScreen = () => {
   });
 
   const navigation = useNavigation();
+  const queryClient = new QueryClient();
+
+  const {signup, isLoading, isError} = useMutation(
+    async () => {
+      try {
+        const response = await axiosInstance.post('/users/adduser', data);
+        console.warn(response.data);
+        if (response.data.result?.error) {
+          Alert.alert('Error', response.data.result.error?.msg, [{text: 'OK'}]);
+        } else {
+          Alert.alert('Success', 'User added successfully', [{text: 'OK'}]);
+        }
+      } catch (error) {
+        console.warn("error",error);
+      }
+    },
+    {
+      onSuccess: () => {
+        Alert.alert('Success', 'Signup Successful', [{text: 'OK'}]);
+        navigation.navigate('Login');
+      },
+      onError: () => {
+        Alert.alert('Error', 'Signup Failed', [{text: 'OK'}]);
+      },
+    },
+  );
 
   const signupHandler = async () => {
-    console.warn(data);
-    try {
-      const response = await axiosInstance.post('/users/adduser', data);
-      console.warn(response.data);
-      if (response.data.result?.error) {
-        Alert.alert('Error', response.data.result.error?.msg, [{text: 'OK'}]);
-      } else {
-        Alert.alert('Success', 'User added successfully', [{text: 'OK'}]);
-      }
-    } catch (error) {
-      console.warn(error);
+    if (
+      data.userName.length === 0 ||
+      data.userDisplayName.length === 0 ||
+      data.userPassword.length === 0
+    ) {
+      Alert.alert('Failed', 'Please enter a valid data', [{text: 'OK'}]);
+    } else {
+      signup();
     }
   };
 
@@ -82,7 +109,10 @@ const SignupScreen = () => {
             secureTextEntry
             onChangeText={text => setData({...data, userPassword: text})}
           />
-          <Pressable onPress={signupHandler} style={styles.button}>
+          <Pressable
+            onPress={signupHandler}
+            disable={isLoading}
+            style={styles.button}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </Pressable>
           <View style={styles.loginTextView}>
@@ -160,13 +190,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.grey200,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: Colors.blue100,
+    color: Colors.black,
   },
   button: {
     width: 125,
     height: 35,
     borderRadius: 20,
     backgroundColor: Colors.blue250,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 25,
