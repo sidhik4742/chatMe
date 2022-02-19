@@ -1,9 +1,6 @@
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
-import {Voximplant} from 'react-native-voximplant';
-
-const voximplant = Voximplant.getInstance();
 
 export async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
@@ -26,7 +23,7 @@ const getFcmToken = async () => {
       if (fcmToken) {
         // user has a device token
         await AsyncStorage.setItem('fcmToken', fcmToken);
-        voximplant.registerPushNotificationsToken(fcmToken);
+        // voximplant.registerPushNotificationsToken(fcmToken);
       }
     } catch (error) {
       console.log(error);

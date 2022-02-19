@@ -16,7 +16,8 @@ import {useNavigation} from '@react-navigation/native';
 import {useQuery, QueryClient} from 'react-query';
 import axiosInstance from '../../config/axios/index';
 import {Voximplant} from 'react-native-voximplant';
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
 
 import colors from '../../constants/Colors';
 import {contacts} from '../../constants/DummyContacts.json';
@@ -34,12 +35,11 @@ const ContactScreen = () => {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [contactSearch, setContactSearch] = useState(contacts);
   const [searchText, setSearchText] = useState('');
-  const [activeUser,setActiveUser] = useState('');
+  const [activeUser, setActiveUser] = useState('');
   // const user =
   const {data, isLoading} = useQuery('contacts', async () => {
     try {
-      getActiveUser();
-      const response = await axiosInstance.get('/users/getcontacts?userId=1');
+      const response = await axiosInstance.get('/users/getcontacts');
       console.log(response.data?.result?.result);
       return response.data?.result?.result;
     } catch (error) {
@@ -96,10 +96,14 @@ const ContactScreen = () => {
     };
   });
 
-  const getActiveUser = async()=>{
-    const value = await AsyncStorage.getItem('user')
+  useEffect(() => {
+    getActiveUser();
+  }, []);
+
+  const getActiveUser = async () => {
+    const value = await AsyncStorage.getItem('user');
     setActiveUser(JSON.parse(value).userName);
-  }
+  };
 
   const callingHandler = contact => {
     navigation.navigate('Outgoing', {
@@ -147,22 +151,23 @@ const ContactScreen = () => {
           renderItem={({item}) => {
             return (
               <>
-              {item.userName!=activeUser? <Pressable
-                onPress={() => callingHandler(item)}
-                style={styles.contactViewVertical}>
-                <View style={styles.icontViewVertical}>
-                  <Ionicon
-                    style={styles.contactIcon}
-                    name="person"
-                    size={50}
-                    color={colors.black}
-                  />
-                </View>
-                <View style={styles.contactInfoVertical}>
-                  <Text style={styles.contactName}>{item.userName}</Text>
-                  <Text style={styles.contactNumberVertical}>{item.phone}</Text>
-                </View>
-              </Pressable>:null}
+                {item.userName != activeUser ? (
+                  <Pressable
+                    onPress={() => callingHandler(item)}
+                    style={styles.contactViewVertical}>
+                    <View style={styles.icontViewVertical}>
+                      <Ionicon
+                        style={styles.contactIcon}
+                        name="person"
+                        size={50}
+                        color={colors.black}
+                      />
+                    </View>
+                    <View style={styles.contactInfoVertical}>
+                      <Text style={styles.contactName}>{item.userName}</Text>
+                    </View>
+                  </Pressable>
+                ) : null}
               </>
             );
           }}
