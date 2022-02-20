@@ -26,20 +26,21 @@ const LoginScreen = () => {
   const voximplant = Voximplant.getInstance();
   const queryClient = new QueryClient();
 
-  useEffect(() => {
-    const ConnectionStatus = async () => {
-      const status = await voximplant.getClientState();
-      if (Voximplant.ClientState.DISCONNECTED === status) {
-        await voximplant.connect();
-      } else if (Voximplant.ClientState.LOGGED_IN === status) {
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'Contact'}],
-        });
-      }
-    };
-    ConnectionStatus();
-  }, []);
+  // useEffect(() => {
+  //   const ConnectionStatus = async () => {
+  //     const status = await voximplant.getClientState();
+  //     console.warn(status);
+  //     if (Voximplant.ClientState.DISCONNECTED === status) {
+  //       await voximplant.connect();
+  //     } else if (Voximplant.ClientState.LOGGED_IN === status) {
+  //       navigation.reset({
+  //         index: 0,
+  //         routes: [{name: 'Contact'}],
+  //       });
+  //     }
+  //   };
+  //   ConnectionStatus();
+  // }, []);
 
   const loginHandler = async () => {
     try {

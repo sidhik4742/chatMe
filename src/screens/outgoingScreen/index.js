@@ -11,9 +11,14 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Voximplant} from 'react-native-voximplant';
 import {useNavigation} from '@react-navigation/native';
 import {useRoute} from '@react-navigation/native';
+import Ionicon from 'react-native-vector-icons/Ionicons';
 
 import CallingActionBox from '../../components/callingActionBox';
-import bg from '../../../assets/images/PhotoDummy.png';
+import bg1 from '../../../assets/images/bg1.jpg';
+import bg2 from '../../../assets/images/bg2.jpg';
+import bg3 from '../../../assets/images/bg3.jpg';
+
+import Colors from '../../constants/Colors';
 
 const callSettings = {
   video: {
@@ -22,10 +27,13 @@ const callSettings = {
   },
 };
 
+const imageBundle = [bg1, bg2, bg3];
+
 const OutgoingCall = () => {
   const navigation = useNavigation();
   const voximplant = Voximplant.getInstance();
   const route = useRoute();
+  const bgImages = useRef();
   // const {permissionGranted} = route.params;
   const {
     permissionGranted,
@@ -124,6 +132,10 @@ const OutgoingCall = () => {
     };
   }, [permissionGranted]);
 
+  useEffect(() => {
+    bgImages.current = imageBundle[Math.floor(Math.random() * 3)];
+  }, []);
+
   return (
     <View>
       <StatusBar
@@ -131,7 +143,9 @@ const OutgoingCall = () => {
         backgroundColor="transparent"
         translucent
       />
-      <ImageBackground source={bg} style={styles.firstCameraScreen}>
+      <ImageBackground
+        source={bgImages.current}
+        style={styles.firstCameraScreen}>
         {/* <Image source={bg} style={styles.secondCameraScreen} /> */}
         <Voximplant.VideoView
           style={styles.firstCameraScreen}
@@ -139,10 +153,12 @@ const OutgoingCall = () => {
           scaleType={Voximplant.RenderScaleType.SCALE_FILL}
         />
 
-        {callStatus!='Connected' ? (
+        {callStatus != 'Connected' ? (
           <View style={styles.textContent}>
             <View style={styles.profileView}>
-              <Image source={bg} style={styles.profileImage} />
+              <View style={styles.profileIcon}>
+                <Ionicon name="person" size={50} color={Colors.grey200} />
+              </View>
             </View>
             <Text style={styles.title}>{userName}</Text>
             <Text style={styles.title}>{callStatus}</Text>
@@ -190,13 +206,13 @@ const styles = StyleSheet.create({
   },
   profileView: {
     width: 100,
-    height: 100,
+    // height: 100,
+    // backgroundColor: '#fff',
     // borderRadius: 50,
   },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 50,
+  profileIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   secondCameraView: {
     width: 150,

@@ -114,67 +114,72 @@ const ContactScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.textView}>
-        <Ionicon
-          style={styles.searchIcon}
-          name="search"
-          size={25}
-          color={colors.gray}
-        />
-        <TextInput
-          onChangeText={setSearchText}
-          style={styles.input}
-          placeholder="Search..."
-        />
-      </View>
-      <FlatList
-        horizontal={true}
-        data={contacts}
-        renderItem={({item}) => {
-          return (
-            <Pressable onPress={() => navigation.navigate('Incoming')}>
-              <View style={styles.contactView}>
-                <View style={styles.icontView}></View>
-                <View style={styles.contactInfo}>
-                  <Text style={styles.contactName}>{item.userName}</Text>
-                </View>
-              </View>
-            </Pressable>
-          );
-        }}
-        keyExtractor={item => item.id}
-      />
       {!isLoading ? (
-        <FlatList
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          data={data}
-          renderItem={({item}) => {
-            return (
-              <>
-                {item.userName != activeUser ? (
-                  <Pressable
-                    onPress={() => callingHandler(item)}
-                    style={styles.contactViewVertical}>
-                    <View style={styles.icontViewVertical}>
-                      <Ionicon
-                        style={styles.contactIcon}
-                        name="person"
-                        size={50}
-                        color={colors.black}
-                      />
-                    </View>
-                    <View style={styles.contactInfoVertical}>
+        <>
+          <View style={styles.textView}>
+            <Ionicon
+              style={styles.searchIcon}
+              name="search"
+              size={25}
+              color={colors.gray}
+            />
+            <TextInput
+              onChangeText={setSearchText}
+              style={styles.input}
+              placeholder="Search..."
+            />
+          </View>
+          <FlatList
+            horizontal={true}
+            data={contacts}
+            renderItem={({item}) => {
+              return (
+                <Pressable>
+                  <View style={styles.contactView}>
+                    <View style={styles.icontView}></View>
+                    <View style={styles.contactInfo}>
                       <Text style={styles.contactName}>{item.userName}</Text>
                     </View>
-                  </Pressable>
-                ) : null}
-              </>
-            );
-          }}
-          keyExtractor={item => item.userId}
-        />
+                  </View>
+                </Pressable>
+              );
+            }}
+            keyExtractor={item => item.id}
+          />
+
+          <FlatList
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            data={data}
+            renderItem={({item}) => {
+              return (
+                <>
+                  {item.userName != activeUser ? (
+                    <Pressable
+                      onPress={() => callingHandler(item)}
+                      style={styles.contactViewVertical}>
+                      <View style={styles.icontViewVertical}>
+                        <Ionicon
+                          style={styles.contactIcon}
+                          name="person"
+                          size={50}
+                          color={colors.black}
+                        />
+                      </View>
+                      <View style={styles.contactInfoVertical}>
+                        <Text style={styles.contactName}>{item.userName}</Text>
+                      </View>
+                    </Pressable>
+                  ) : null}
+                </>
+              );
+            }}
+            keyExtractor={item => item.userId}
+          />
+        </>
       ) : (
-        <Text>Loading</Text>
+        <View style={styles.loader}>
+          <Text>Loading...</Text>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -198,6 +203,9 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     backgroundColor: colors.grey100,
     borderRadius: 20,
+  },
+  input: {
+    color: colors.black,
   },
   icontView: {
     margin: 10,
@@ -234,5 +242,10 @@ const styles = StyleSheet.create({
   },
   contactInfoVertical: {
     marginLeft: 10,
+  },
+  loader: {
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

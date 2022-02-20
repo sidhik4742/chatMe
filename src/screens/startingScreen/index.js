@@ -6,14 +6,33 @@ import {
   StatusBar,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Colors from '../../constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Voximplant} from 'react-native-voximplant';
 
 import bg from '../../../assets/images/bg.png';
 
 const StartingScreen = () => {
+  const voximplant = Voximplant.getInstance();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const ConnectionStatus = async () => {
+      const status = await voximplant.getClientState();
+      if (Voximplant.ClientState.DISCONNECTED === status) {
+        await voximplant.connect();
+      } else if (Voximplant.ClientState.LOGGED_IN === status) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'Contact'}],
+        });
+      }
+    };
+    ConnectionStatus();
+  }, []);
+
   return (
     <>
       <StatusBar
@@ -25,7 +44,9 @@ const StartingScreen = () => {
         <View style={styles.screenContent}>
           <Text style={styles.textHeading}>chatMe</Text>
           <Text style={styles.textSubHeading}>A Video Chat App</Text>
-          <Pressable  onPress={() => navigation.navigate('Login')} style={styles.button}>
+          <Pressable
+            onPress={() => navigation.navigate('Login')}
+            style={styles.button}>
             <Text style={styles.buttonText}>Login</Text>
           </Pressable>
           <Pressable

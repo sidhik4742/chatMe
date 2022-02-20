@@ -1,7 +1,7 @@
 import Axios, {AxiosInstance} from 'axios';
 
 const instance = Axios.create({
-  baseURL: 'http://192.168.31.136:3000/',
+  baseURL: 'https://chatme-server.herokuapp.com',
   timeout: 5000,
 });
 
